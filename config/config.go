@@ -1,8 +1,11 @@
 package config
 
-import "os"
+import (
+	"os"
+)
 
 type Config struct {
+	DatabaseURL  string
 	Provider1URL string
 	Provider2URL string
 }
@@ -19,8 +22,14 @@ func LoadConfig() *Config {
 		provider2URL = "https://run.mocky.io/v3/7b0ff222-7a9c-4c54-9396-0df58e289143"
 	}
 
+	databaseURL := os.Getenv("DATABASE_URL")
+	if databaseURL == "" {
+		databaseURL = "postgresql://postgres:12345@localhost:5432/postgres"
+	}
+
 	return &Config{
 		Provider1URL: provider1URL,
 		Provider2URL: provider2URL,
+		DatabaseURL:  databaseURL,
 	}
 }
