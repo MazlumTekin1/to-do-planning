@@ -1,4 +1,4 @@
-package util
+package api
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func GetProviderData(url string) ([]byte, error) {
+func GetData(url string) ([]byte, error) {
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, fmt.Errorf("error making HTTP request: %v", err)
