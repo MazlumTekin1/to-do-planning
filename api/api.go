@@ -2,6 +2,7 @@ package api
 
 import (
 	"todo_planning/config"
+	"todo_planning/model"
 	"todo_planning/util"
 
 	"github.com/gofiber/fiber/v2"
@@ -12,24 +13,44 @@ type ApiHandler struct {
 }
 
 func (ap *ApiHandler) DistributeTasksController(ctx *fiber.Ctx) error {
+	devsChan := make(chan []model.Developer)
+	tasksChan := make(chan []model.Task)
+	errChan := make(chan error)
+	go func() {
+		devs, err := ap.DbProvider.GetDeveloperFromDatabase()
+		if err != nil {
+			errChan <- err
+			return
+		}
+		devsChan <- devs
+	}()
 
-	devs, err := ap.DbProvider.GetDeveloperFromDatabase()
-	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": err.Error(),
-		})
+	go func() {
+		tasks, err := ap.DbProvider.GetTasksFromDatabase()
+		if err != nil {
+			errChan <- err
+			return
+		}
+		tasksChan <- tasks
+	}()
+
+	var devs []model.Developer
+	var tasks []model.Task
+	for i := 0; i < 2; i++ {
+		select {
+		case devs = <-devsChan:
+		case tasks = <-tasksChan:
+		case err := <-errChan:
+			return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": err.Error(),
+			})
+		}
 	}
 
-	tasks, err := ap.DbProvider.GetTasksFromDatabase()
-	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": err.Error(),
-		})
-	}
+	data, maxWeeks := util.DistributeTasks(devs, tasks)
 
-	data, max_weeks := util.DistributeTasks(devs, tasks)
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
-		"max_weeks": max_weeks,
+		"max_weeks": maxWeeks,
 		"data":      data,
 	})
 }
@@ -72,6 +93,6 @@ func (ap *ApiHandler) AddTaskController(ctx *fiber.Ctx) error {
 		}
 	}
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "Tasks added successfully",
+		"message": "Önceki Tasklar Veri Tabanından Silindi ve API'den Gelen Yeni Tasklar Eklendi.",
 	})
 }
