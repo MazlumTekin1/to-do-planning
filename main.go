@@ -12,7 +12,7 @@ import (
 
 func main() {
 	//load config info
-	config := config.LoadConfig() //TODO: config ve db initialize işlemleri için error handling yapılmalı.
+	config := config.LoadConfig()
 	//initialize database
 	database, err := database.Connect(config.DatabaseURL)
 	if err != nil {
@@ -20,8 +20,6 @@ func main() {
 	} else {
 		log.Println("Database Connection Estabilished")
 	}
-	//TODO logger yapılmalı
-	//initialize provider
 
 	dbProvider := api.DbProvider{Pool: database}
 

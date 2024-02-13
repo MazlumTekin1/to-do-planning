@@ -5,7 +5,6 @@ import (
 	"todo_planning/model"
 )
 
-// TODO: Burada
 func DistributeTasks(developers []model.Developer, tasks []model.Task) (map[string][]model.Task, int) {
 	sort.Slice(tasks, func(i, j int) bool {
 		return tasks[i].Difficulty > tasks[j].Difficulty || (tasks[i].Difficulty == tasks[j].Difficulty && tasks[i].Duration > tasks[j].Duration)
@@ -18,9 +17,9 @@ func DistributeTasks(developers []model.Developer, tasks []model.Task) (map[stri
 
 	taskDistribution := make(map[string][]model.Task)
 
-	// Görevleri dağıt
+	// Distribute tasks
 	for _, task := range tasks {
-		// En uygun developer'ı bul
+		// Find the best developer for the task
 		var bestDev string
 		minExtraTime := float64(999999)
 		for _, dev := range developers {
@@ -32,12 +31,11 @@ func DistributeTasks(developers []model.Developer, tasks []model.Task) (map[stri
 				}
 			}
 		}
-		// Görevi en uygun developer'a ata
+		// Assign to the fit developer
 		taskDistribution[bestDev] = append(taskDistribution[bestDev], task)
 		developerWorkloads[bestDev] += float64(task.Duration)
 	}
 
-	// En uzun süren developer'ın çalışma süresini hesapla ve haftaları belirle
 	maxHours := 0.0
 	for _, workload := range developerWorkloads {
 		if workload > maxHours {
