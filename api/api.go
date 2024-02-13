@@ -41,6 +41,7 @@ func (ap *ApiHandler) DistributeTasksController(ctx *fiber.Ctx) error {
 		case devs = <-devsChan:
 		case tasks = <-tasksChan:
 		case err := <-errChan:
+			util.LogToFile(err.Error())
 			return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"error": err.Error(),
 			})
@@ -59,6 +60,7 @@ func (ap *ApiHandler) AddTaskController(ctx *fiber.Ctx) error {
 
 	tasks1, err := NewProvider1(config.LoadConfig().Provider1URL).GetTasks()
 	if err != nil {
+		util.LogToFile(err.Error())
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
 		})
@@ -66,18 +68,21 @@ func (ap *ApiHandler) AddTaskController(ctx *fiber.Ctx) error {
 
 	tasks2, err := NewProvider2(config.LoadConfig().Provider2URL).GetTasks()
 	if err != nil {
+		util.LogToFile(err.Error())
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
 
 	if tasks1 == nil || tasks2 == nil {
+		util.LogToFile("Error getting tasks from providers")
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Error getting tasks from providers",
 		})
 	} else if tasks1 != nil && tasks2 != nil {
 		err = ap.DbProvider.TruncateTasksFromDatabase()
 		if err != nil {
+			util.LogToFile(err.Error())
 			return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"error": err.Error(),
 			})
@@ -86,6 +91,7 @@ func (ap *ApiHandler) AddTaskController(ctx *fiber.Ctx) error {
 		for _, task := range tasks {
 			err = ap.DbProvider.SaveTaskToDatabase(task)
 			if err != nil {
+				util.LogToFile(err.Error())
 				return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 					"error": err.Error(),
 				})
