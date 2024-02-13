@@ -5,6 +5,7 @@ import (
 	"todo_planning/api"
 	"todo_planning/config"
 	"todo_planning/database"
+	"todo_planning/util"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -17,8 +18,10 @@ func main() {
 	database, err := database.Connect(config.DatabaseURL)
 	if err != nil {
 		log.Fatal("Database Connection Can't Estabilished, Error:", err)
+		util.LogToFile(err.Error())
 	} else {
 		log.Println("Database Connection Estabilished")
+		util.LogToFile("Database Connection Estabilished")
 	}
 
 	dbProvider := api.DbProvider{Pool: database}
