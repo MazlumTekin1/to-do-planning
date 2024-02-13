@@ -17,3 +17,14 @@ type Provider2Model struct {
 	EstimatedDuration int    `json:"estimated_duration"`
 	Id                string `id:"id"`
 }
+
+type Provider3Model struct {
+	Zorluk3 int    `json:"zorluk"`
+	Sure3   int    `json:"sure"`
+	Id3     string `id:"id"`
+}
+type Developer struct {
+	Id                          int
+	Name                        string
+	DeveloperWorkHourDifficulty int
+}

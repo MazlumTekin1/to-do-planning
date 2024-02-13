@@ -4,36 +4,43 @@ import (
 	"encoding/json"
 	"fmt"
 	"todo_planning/model"
-	"todo_planning/util"
 )
 
 type Provider1 struct {
-	model []model.Provider1Model
-	Db    *DbProvider
+	url string
 }
 
-func (p1 *Provider1) GetTasks(url string) ([]model.Provider1Model, error) {
+type Provider1Model struct {
+	Zorluk int    `json:"zorluk"`
+	Sure   int    `json:"sure"`
+	Id     string `id:"id"`
+}
 
-	body, err := util.GetProviderData(url)
+func NewProvider1(url string) Provider {
+	return &Provider1{url: url}
+}
+
+func (p1 *Provider1) GetTasks() ([]model.Task, error) {
+
+	body, err := GetData(p1.url)
 	if err != nil {
 		return nil, fmt.Errorf("error getting provider data: %v", err)
 	}
 
-	tasks := p1.model
+	tasks := []Provider1Model{}
 	if err := json.Unmarshal(body, &tasks); err != nil {
 		return nil, fmt.Errorf("error unmarshalling JSON response: %v", err)
 	}
+
+	provider_tasks := []model.Task{}
 	for _, task := range tasks {
 		t := model.Task{
 			Name:       task.Id,
 			Duration:   task.Sure,
 			Difficulty: task.Zorluk,
 		}
-		err = p1.Db.SaveTaskToDatabase(t)
-		if err != nil {
-			return nil, fmt.Errorf("error saving task to database: %v", err)
-		}
+		provider_tasks = append(provider_tasks, t)
 	}
 
-	return tasks, nil
+	return provider_tasks, nil
 }
