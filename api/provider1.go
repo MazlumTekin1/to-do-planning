@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"todo_planning/model"
+	"todo_planning/util"
 )
 
 type Provider1 struct {
@@ -24,11 +25,13 @@ func (p1 *Provider1) GetTasks() ([]model.Task, error) {
 
 	body, err := GetData(p1.url)
 	if err != nil {
+		util.LogToFile(err.Error())
 		return nil, fmt.Errorf("error getting provider data: %v", err)
 	}
 
 	tasks := []Provider1Model{}
 	if err := json.Unmarshal(body, &tasks); err != nil {
+		util.LogToFile(err.Error())
 		return nil, fmt.Errorf("error unmarshalling JSON response: %v", err)
 	}
 
