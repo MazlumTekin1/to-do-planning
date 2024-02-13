@@ -2,27 +2,35 @@ package database
 
 import (
 	"context"
-	"log"
+	"fmt"
 	"os"
 
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func Initialize() *pgxpool.Pool {
-	connectionPath := "postgresql://postgres:12345@localhost:5432/postgres"
+func Connect(databaseUrl string) (*pgxpool.Pool, error) {
+	var err error
 
-	poolConfig, err := pgxpool.ParseConfig(connectionPath)
+	connection, err := pgxpool.New(context.Background(), databaseUrl)
+
 	if err != nil {
-		log.Println("Unable to parse DATABASE_URL", "error", err)
-		os.Exit(1)
+		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
+		return nil, err
 	}
 
-	connection, err := pgxpool.ConnectConfig(context.Background(), poolConfig)
-	if err != nil {
-		log.Println("Unable to create connection pool, error:", err)
-		os.Exit(1)
-	} else {
-		log.Println("Database Connection Created")
-	}
-	return connection
+	// ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	// defer cancel()
+
+	// oniChan := make(chan bool, 1)
+	// go func(ch chan bool) {
+	// 	Postgres.Connection.Ping(context.Background())
+	// 	ch <- true
+	// }(oniChan)
+
+	// select {
+	// case <-ctx.Done():
+	// 	return nil, fmt.Errorf("Database Connection Timeout")
+	// case <-oniChan:
+	return connection, nil
+	// }
 }
