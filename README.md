@@ -1,7 +1,5 @@
 # To Do Plannig Project
 
-Case study kapsamında yapılmış bir projedir.
-
 Projeyi çalıştırmak için proje ana dizininde 
 
 ```bash
